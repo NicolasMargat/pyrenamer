@@ -2,7 +2,6 @@
 Application en ligne de commande pour renommer des fichiers ou dossiers
 
 [![Python](https://img.shields.io/badge/python-3.11.4-blue.svg)](https://www.python.org/downloads/release/python-3114/) 
-![License](https://img.shields.io/github/license/shsarv/Machine-Learning-Projects)
 
 ## Sommaire
  - [Objectif](#objectif)
@@ -45,6 +44,3 @@ options:
                         Reverse sorting type
   -p, --preview         Show preview of renaming
 ```
-
-## Licence
-MIT
