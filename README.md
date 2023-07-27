@@ -37,6 +37,8 @@ options:
                                 %N% represents a 4-character numeric increment
                                 %NA% represents an increment whose format is automatically defined according to the number of elements to be renamed
                                 %D% represents a date in yymmdd format
+  -i INCREMENT_START, --increment-start INCREMENT_START
+                        Defines the integer on which to start incrementing the name if there is one
   -s {NAME,DATE,TYPE}, --sort {NAME,DATE,TYPE}
                         Sorting type
   -r {NAME,DATE,TYPE}, --reverse {NAME,DATE,TYPE}
