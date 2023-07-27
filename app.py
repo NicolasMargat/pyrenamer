@@ -21,6 +21,7 @@ def get_args():
                         '\n\t%%N%% represents a 4-character numeric increment ' + 
                         '\n\t%%NA%% represents an increment whose format is automatically defined according to the number of elements to be renamed ' + 
                         '\n\t%%D%% represents a date in yymmdd format')
+    parser.add_argument('-i', '--increment-start', action='store', type=int, default=1, help='Permet de définir sur quel entier doit démarrer l\'incrémentation du nom si il y en a un')
 
     group_sort = parser.add_mutually_exclusive_group()
     group_sort.add_argument('-s', '--sort', choices=['NAME', 'DATE', 'TYPE'], help='Sorting type')

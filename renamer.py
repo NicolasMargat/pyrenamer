@@ -13,6 +13,7 @@ class Renamer:
     __element_type_selected = 'FILE'
     __filter_name = '*'
     __format_name = '%N%'
+    __increment_start = 1
     __sort_type = 'NAME'
     __show_preview = False
 
@@ -21,16 +22,17 @@ class Renamer:
     # Constructors #
     # ************ #
     def __init__(self):
-        print("contructeur par défaut")
+        print("default constructor")
 
     
     def __init__(self, args):
-        print("Contructeur prenant les options d'entrée en paramétre")
+        print("Controller taking input options as parameters")
         print(args)
         self.__path_directory = args.path
         self.__element_type_selected = args.element
         self.__filter_name = args.filter
         self.__format_name = args.new_name
+        self.__increment_start = args.increment_start
         self.determines_the_sort_type(args.sort, args.reverse)
         self.__show_preview = args.preview
 
@@ -64,7 +66,7 @@ class Renamer:
         in the case of reverse sorting, a lowercase r is added as a prefix to the sort type.
         By default, sorting will be based on element name and in ascending order.
         """
-        print("Définition du tri des éléments")
+        print("Defining element sorting")
         if sort_type != None and reverse_sort_type == None:
             self.__sort_type = sort_type
         elif sort_type == None and reverse_sort_type != None:
@@ -89,6 +91,14 @@ class Renamer:
         self.__format_name = format
 
 
+    def get_increment_start(self):
+        return self.__increment_start
+
+
+    def set_increment_start(self, increment_start):
+        self.__increment_start = increment_start
+
+
     def show_preview(self):
         return self.__show_preview
     
@@ -110,7 +120,7 @@ class Renamer:
         list_of_elements = []
 
         if not os.path.exists(path):
-            print('Le répertoire spécifié en entrée du script n\'existe pas')
+            print('The directory specified as script input does not exist')
             return None
 
         for filter in self.get_filter_name().split(';'):
@@ -182,13 +192,17 @@ class Renamer:
         renamed_list = []
         today = str(date.today().strftime("%y%m%d"))
         increment_format = self.__generate_pattern_format_for_increment(len(list_of_elements))
+        increment = self.get_increment_start()
+
         for i in range(0, len(list_of_elements)):
             element = list_of_elements[i]
             new_name = self.get_format_name() + self.__get_element_extension(element)
             if new_name != None and '%N%' in new_name:
-                new_name = new_name.replace('%N%', increment_format.format(i + 1), 1)
+                new_name = new_name.replace('%N%', increment_format.format(increment), 1)
+                increment += 1
             if '%NA%' in new_name:
-                new_name = new_name.replace('%NA%', increment_format.format(i + 1), 1)
+                new_name = new_name.replace('%NA%', increment_format.format(increment), 1)
+                increment += 1
             if '%D%' in new_name:
                 new_name= new_name.replace('%D%', today)
             renamed_list.append((element, new_name))
@@ -211,15 +225,14 @@ class Renamer:
             i = 1
             is_ok = False
             while i < 10 and is_ok == False:
-                print(str(10 ** i))
                 max_elements = (10 ** i) - 1
                 if nb_element < max_elements:
                     is_ok = True
                     nb_carac_for_increment = i
                 i += 1
         return '{:0' + str(nb_carac_for_increment) + '}'
-    
 
+    
     def print_preview_or_rename_elements(self, renamed_list):
         """
         Function which, if preview is requested, displays in the console the correspondence between the old and new names of selected elements
