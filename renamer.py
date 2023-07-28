@@ -2,6 +2,7 @@
 
 import os
 import glob
+import re
 import logging
 
 from datetime import date, datetime
@@ -198,20 +199,20 @@ class Renamer:
         today = str(date.today().strftime("%y%m%d"))
         increment_format = self.__generate_pattern_format_for_increment(len(list_of_elements))
         increment = self.get_increment_start()
+        logger.debug(f'generate_new_name - New name format : {self.get_format_name()}')
+        self.validate_new_name_pattern()
+        logger.debug(f'generate_new_name - Format of new name after validation : {self.get_format_name()}')
 
         for i in range(0, len(list_of_elements)):
             element = list_of_elements[i]
             new_name = self.get_format_name() + self.__get_element_extension(element)
             if new_name != None and '%N%' in new_name:
-                logger.debug('generate_new_name - increment insertion')
                 new_name = new_name.replace('%N%', increment_format.format(increment), 1)
                 increment += 1
             if '%NA%' in new_name:
-                logger.debug('generate_new_name - automatic increment insertion')
                 new_name = new_name.replace('%NA%', increment_format.format(increment), 1)
                 increment += 1
             if '%D%' in new_name:
-                logger.debug('generate_new_name - date insertion')
                 new_name= new_name.replace('%D%', today)
             renamed_list.append((element, new_name))
 
@@ -241,6 +242,17 @@ class Renamer:
                     nb_carac_for_increment = i
                 i += 1
         return '{:0' + str(nb_carac_for_increment) + '}'
+    
+
+    def validate_new_name_pattern(self):
+        logger.debug('validate_new_name_pattern - search forbidden characters')
+        pattern = '[/\\:*?"<>|]'
+        regex = re.compile(pattern)
+        result = regex.search(self.get_format_name())
+        if result != None:
+            logger.warning('validate_new_name_pattern - The format of the new name contains forbidden characters')
+            self.set_format_name(re.sub(pattern, '', self.get_format_name()))
+            logger.info('validate_new_name_pattern - the new name format has been cleaned up')
 
     
     def print_preview_or_rename_elements(self, renamed_list):
