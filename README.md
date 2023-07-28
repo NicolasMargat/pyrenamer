@@ -6,7 +6,6 @@ Application en ligne de commande pour renommer des fichiers ou dossiers
 ## Sommaire
  - [Objectif](#objectif)
  - [How To Use](#how-to-use)
- - [License](#license)
 
 ## Objectif
 Ce programme a été créé dans le cadre d'une initiation au langage Python.
