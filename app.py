@@ -3,6 +3,14 @@
 
 import argparse
 import renamer
+import logging
+import logging.config
+
+
+# load logging configuration
+logging.config.fileConfig('conf/log.conf')
+# create logger
+logger = logging.getLogger('app')
 
 def get_args():
     """
@@ -10,6 +18,7 @@ def get_args():
 
     return: the namespace containing the parsed arguments
     """
+    logger.debug('preparation of script argument parsing')
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('path', type=str, nargs='?', default='.', help='Path of the directory from which to retrieve the items to be renamed')
 
@@ -29,14 +38,17 @@ def get_args():
 
     parser.add_argument('-p', '--preview', action='store_true', help='Show preview of renaming')
 
+    logger.debug('Parsing script arguments')
     return parser.parse_args()
 
 
 ren = renamer.Renamer(get_args())
 list_of_elements = ren.get_elements_from_repository()
 if len(list_of_elements) > 0:
+    logger.debug(f'Found {len(list_of_elements)} element(s)')
     list_of_elements = ren.sort_elements(list_of_elements)
     renamed_list = ren.generate_new_name(list_of_elements)
     ren.print_preview_or_rename_elements(renamed_list)
 else:
+    logger.info('No elements were found according to the requested criteria.')
     print('No elements were found according to the requested criteria.')

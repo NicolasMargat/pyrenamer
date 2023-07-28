@@ -2,10 +2,15 @@
 
 import os
 import glob
+import logging
 
 from datetime import date, datetime
 
+# create logger
+logger = logging.getLogger('renamer')
+
 class Renamer:
+
     # ***************** #
     # Private variables #
     # ***************** #
@@ -22,12 +27,12 @@ class Renamer:
     # Constructors #
     # ************ #
     def __init__(self):
-        print("default constructor")
+        logger.debug("Default constructor")
 
     
     def __init__(self, args):
-        print("Controller taking input options as parameters")
-        print(args)
+        logger.debug("Constructor taking input options as parameters")
+        logger.debug(args)
         self.__path_directory = args.path
         self.__element_type_selected = args.element
         self.__filter_name = args.filter
@@ -66,7 +71,7 @@ class Renamer:
         in the case of reverse sorting, a lowercase r is added as a prefix to the sort type.
         By default, sorting will be based on element name and in ascending order.
         """
-        print("Defining element sorting")
+        logger.debug("Defining element sorting")
         if sort_type != None and reverse_sort_type == None:
             self.__sort_type = sort_type
         elif sort_type == None and reverse_sort_type != None:
@@ -120,7 +125,7 @@ class Renamer:
         list_of_elements = []
 
         if not os.path.exists(path):
-            print('The directory specified as script input does not exist')
+            logger.error('The directory specified as script input does not exist')
             return None
 
         for filter in self.get_filter_name().split(';'):
@@ -188,7 +193,7 @@ class Renamer:
         
         return : tuple list containing the original element and the new name to be assigned to it
         """
-        print('\nGenerates new names for selected items according to the format specified in the program options')
+        logger.debug('Generates new names for selected items according to the format specified in the program options')
         renamed_list = []
         today = str(date.today().strftime("%y%m%d"))
         increment_format = self.__generate_pattern_format_for_increment(len(list_of_elements))
@@ -198,12 +203,15 @@ class Renamer:
             element = list_of_elements[i]
             new_name = self.get_format_name() + self.__get_element_extension(element)
             if new_name != None and '%N%' in new_name:
+                logger.debug('generate_new_name - increment insertion')
                 new_name = new_name.replace('%N%', increment_format.format(increment), 1)
                 increment += 1
             if '%NA%' in new_name:
+                logger.debug('generate_new_name - automatic increment insertion')
                 new_name = new_name.replace('%NA%', increment_format.format(increment), 1)
                 increment += 1
             if '%D%' in new_name:
+                logger.debug('generate_new_name - date insertion')
                 new_name= new_name.replace('%D%', today)
             renamed_list.append((element, new_name))
 
@@ -226,7 +234,9 @@ class Renamer:
             is_ok = False
             while i < 10 and is_ok == False:
                 max_elements = (10 ** i) - 1
+                logger.debug(f'generate_pattern_format_for_increment - The maximum number of elements for a {i}-character format is {max_elements}.')
                 if nb_element < max_elements:
+                    logger.debug(f'generate_pattern_format_for_increment - the number of elements to be processed corresponds to a {i}-character format')
                     is_ok = True
                     nb_carac_for_increment = i
                 i += 1
@@ -241,16 +251,18 @@ class Renamer:
         Parameters :
             renamed_list : tuple list containing the original element and the new name to be assigned to it
         """
+        arrow = '\033[1m\033[1;34m->\033[0m'
         if self.show_preview():
-            print('\nDisplaying transformations')
+            logger.info('print_preview_or_rename_elements - Displaying transformations')
             for elem in renamed_list:
                 old_name = os.path.basename(elem[0])
-                #print(old_name + ' (' + str(self.__get_element_create_date(elem[0])) + ') -> ' + elem[1])
-                print(old_name + ' -> ' + elem[1])
+                logger.info(f'{old_name} (create date : {str(self.__get_element_create_date(elem[0]))}) -> {elem[1]}')
+                print(f'{old_name} {arrow} {elem[1]}')
         else:
-            print('\nThe selected elements will be renamed according to the new format')
+            logger.info('print_preview_or_rename_elements - The selected elements will be renamed according to the new format')
             for elem in renamed_list:
                 old_name = elem[0]
                 new_name = os.path.join(self.get_path_directory(), elem[1])
                 os.rename(old_name, new_name)
-                print(old_name + ' -> ' + new_name)
+                logger.info(f'{old_name} {arrow} {new_name}')
+                print(f'{old_name} {arrow} {new_name}')
